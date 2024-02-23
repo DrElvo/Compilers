@@ -1,0 +1,242 @@
+.globl main
+.macro    PushImm        $number
+    li          t0, $number
+    sw          t0, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    PushReg        $reg
+    sw          $reg, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    PopReg        $reg
+    lw          $reg, 4(sp)
+    addi        sp, sp, 4
+.end_macro
+
+.macro    Discard        $bytes
+    addi        sp, sp, $bytes
+.end_macro
+
+.macro    Popt1t2
+    lw          t1, 4(sp)
+    addi        sp, sp, 4
+    lw          t2, 4(sp)
+    addi        sp, sp, 4
+.end_macro
+
+.macro CompLE
+    Popt1t2
+    li          t0, 1
+    sw          t0, (sp)
+    ble         t1, t2, exit
+    sw          zero, (sp)
+exit:
+    addi        sp, sp, -4
+.end_macro
+
+.macro CompME
+    Popt1t2
+    li          t0, 1
+    sw          t0, (sp)
+    ble         t1, t2, exit
+    sw          zero, (sp)
+exit:
+    addi        sp, sp, -4
+.end_macro
+
+.macro CompM
+    Popt1t2
+    li          t0, 1
+    sw          t0, (sp)
+    ble         t1, t2, exit
+    sw          zero, (sp)
+exit:
+    addi        sp, sp, -4
+.end_macro
+
+.macro CompL
+    Popt1t2
+    li          t0, 1
+    sw          t0, (sp)
+    ble         t1, t2, exit
+    sw          zero, (sp)
+exit:
+    addi        sp, sp, -4
+.end_macro
+
+.macro Equ
+    Popt1t2
+    li          t0, 1
+    sw          t0, (sp)
+    ble         t1, t2, exit
+    sw          zero, (sp)
+exit:
+    addi        sp, sp, -4
+.end_macro
+
+.macro    Plus
+    Popt1t2
+    add         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    Minus
+    Popt1t2
+    sub         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    Multiply
+    Popt1t2
+    mul         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    Divide
+    Popt1t2
+    div         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    LogicalAnd
+    Popt1t2
+    and         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+.macro    LogicalXor
+    Popt1t2
+    xor         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+ .macro    LogicalOr
+    Popt1t2
+    or         t1, t1, t2
+    sw          t1, (sp)
+    addi        sp, sp, -4
+.end_macro
+
+
+
+.macro    Jump        $address
+    j           $address
+.end_macro
+
+.macro    JumpTrue    $address
+    lw          t1, 4(sp)
+    addi        sp, sp, 4
+    beqz        t1, exit
+    j           $address
+exit:
+.end_macro
+
+main:
+    lw          ra, 4(sp)
+    addi        sp, sp, 4
+    lw          x17, 4(sp)
+    addi        sp, sp, 4
+    addi        sp, sp, 4
+    PushImm     1
+    lw          x18, 4(sp)
+    addi        sp, sp, 4
+    PushImm     1
+    lw          x19, 4(sp)
+    addi        sp, sp, 4
+    PushImm     0
+    lw          x20, 4(sp)
+    addi        sp, sp, 4
+    PushImm     1
+    lw          x21, 4(sp)
+    addi        sp, sp, 4
+    PushImm     1
+    lw          x22, 4(sp)
+    addi        sp, sp, 4
+    PushReg     xnull
+    lw          x23, 4(sp)
+    addi        sp, sp, 4
+label_0:
+    PushReg     x22
+    PushImm     1
+    CompLE
+    PushImm     1
+    PushReg     x22
+    CompLE
+    LogicalAnd
+    PushImm     0
+    PushReg     x17
+    CompLE
+    LogicalAnd
+    PushImm     1
+    LogicalXor
+    JumpTrue    label_1
+    PushImm     0
+    PopReg      x22
+if_3:
+    PushImm     0
+    PushReg     x22
+    Equ
+else_4:
+    PushReg     xnull
+    PopReg      x23
+else_4:
+endif_5:
+    PushReg     xnull
+    PopReg      x23
+endif_5:
+    Jump        label_0
+label_1:
+label_5:
+    PushReg     x22
+    PushImm     1
+    CompLE
+    PushImm     1
+    PushReg     x22
+    CompLE
+    LogicalAnd
+    PushReg     x17
+    PushReg     x18
+    CompLE
+    LogicalAnd
+    PushImm     1
+    LogicalXor
+    JumpTrue    label_6
+label_7:
+    PushReg     x18
+    PushReg     x21
+    CompLE
+    PushImm     1
+    LogicalXor
+    JumpTrue    label_8
+    PushReg     x19
+    PushReg     x20
+    Plus
+    PopReg      x20
+    PushImm     1
+    PushReg     x21
+    Plus
+    PopReg      x21
+    Jump        label_7
+label_8:
+    PushReg     x20
+    PopReg      x19
+    PushImm     0
+    PopReg      x20
+    PushImm     1
+    PopReg      x21
+    PushImm     1
+    PushReg     x18
+    Plus
+    PopReg      x18
+    Jump        label_5
+label_6:
+    PushReg     x19
+    ret
